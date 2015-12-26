@@ -7,8 +7,8 @@ var PieChart = (function () {
     	}.bind(this));
     	//Create SVG object and insert it in the container
     	this.svg=insertSVG.call(this);
-        //For each piece of data, work out the degrees that it's  slice needs to cover
-        getDegrees.call(this);
+        //For each piece of data, work out the radians that its  slice needs to cover
+        getRadians.call(this);
     	//Initialize variables  (trigonometry knowledge required to understand calculations)
     	this.aggArch=(this.startingDeg?this.startingDeg*2 * Math.PI/360:0);
     	this.currentPoint = {
@@ -17,10 +17,11 @@ var PieChart = (function () {
         };
 
         //Create the archs for the different pieces of data
-	    this.data.forEach(plot.bind(this));
+	this.data.forEach(plot.bind(this));
     }
 
     function insertSVG() {
+    	//Create SVG element and set appropiate attributes
         var svg = document.createElementNS("http://www.w3.org/2000/svg", 'svg');
         svg.setAttribute("class", "pieChart");
         svg.setAttribute("viewBox", "0 0 100 100");
@@ -31,16 +32,16 @@ var PieChart = (function () {
         return svg;
     }
 
-    function getDegrees() {
-		//Let's add up all the values
+    function getRadians() {
+	//Let's add up all the values
         var sum = this.data.reduce(function (prev, current) {
             return (prev.value?prev.value*1.0:prev) + current.value*1.0;
         });
         //and find out the rads for 1 unit
         var factor = 2 * Math.PI / sum;
-        //so that we can workout the number of rads for each piece of data
+        //so that we can workout the number of rads that each slice needs to span
         this.data.forEach(function (pieceOfData, index) {
-            this.data[index]["degrees"]=factor*pieceOfData.value;
+            this.data[index]["radians"]=factor*pieceOfData.value;
         }.bind(this));
     }
 
@@ -48,7 +49,7 @@ var PieChart = (function () {
     	//Create path, set its attributes and add it to our SVG
         var path = document.createElementNS("http://www.w3.org/2000/svg", "path");
         path.setAttribute("fill",pieceOfData.col);
-        path.setAttribute("d",calculatePath.call(this, pieceOfData.degrees, index));
+        path.setAttribute("d",calculatePath.call(this, pieceOfData.radians, index));
         path.setAttribute("class","sector");
         this.svg.appendChild(path);
 		
@@ -64,10 +65,10 @@ var PieChart = (function () {
         	}.bind(this));        	
     }
 
-    function calculatePath(degreesInc,index) {
+    function calculatePath(radInc,index) {
     	//Knowledge of trigonometry and SVG archs are required to understand this bit.
-        this.aggArch += degreesInc;
-        var large=(degreesInc>Math.PI?1:0), sweep = 0;
+        this.aggArch += radInc;
+        var large=(radInc>Math.PI?1:0), sweep = 0;
         var endPoint = {
             x: 50 + 50 * Math.cos(this.aggArch),
             y: 50 - 50 * Math.sin(this.aggArch)
