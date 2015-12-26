@@ -53,6 +53,7 @@ var PieChart = (function () {
         path.setAttribute("class","sector");
         this.svg.appendChild(path);
 		
+		this.data[index]["path"]=path;
         //Attach event listeners
         if(this.onMouseEnterSlice) 
        		path.addEventListener("mouseenter",function() {
